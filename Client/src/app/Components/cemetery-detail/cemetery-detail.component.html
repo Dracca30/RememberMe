@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 <div class="container py-5 card-cimitero pb-32" *ngIf="cemetery;">
   <button (click)="router.navigate(['/'])" class="btn btn-outline-secondary mb-4">← Torna alla home</button>
-  
+
   <h2 class="display-5" data-aos="fade-right">{{ cemetery.name }}</h2>
   <div class="cemetery-info mb-4" *ngIf="cemetery.address || cemetery.city || cemetery.country || cemeteryDistance">
     <p class="mb-2" *ngIf="cemetery.address"><i class="bi bi-geo-alt"></i> {{ cemetery.address }}</p>
@@ -9,8 +9,23 @@
       <i class="bi bi-map"></i> {{ cemetery.city }}{{ cemetery.city && cemetery.country ? ', ' : '' }}{{ cemetery.country }}
     </p>
     <p class="mb-2" *ngIf="cemeteryDistance"><i class="bi bi-compass"></i> <strong>Distanza percorso: {{ (cemeteryDistance | number:'1.1-1') }} km</strong></p>
-    <p class="mb-2" *ngIf="cemeteryDuration"><i class="bi bi-clock"></i> <strong>Durata stimata: {{ cemeteryDuration }}</strong></p>
-    <p class="mb-2" *ngIf="cemetery"><a [href]="getGoogleMapsLink()" target="_blank" rel="noopener" class="btn btn-outline-primary">Apri il percorso in Google Maps</a></p>
+    <p class="mb-2" *ngIf="cemeteryDuration">
+      <span [ngSwitch]="cemeteryTransportMode">
+        <span *ngSwitchCase="'flying'">✈️</span>
+        <span *ngSwitchCase="'ferry'">⛴️</span>
+        <span *ngSwitchDefault>🚗</span>
+      </span>
+      <strong>Durata ({{ cemeteryTransportMode === 'driving' ? 'Auto' : cemeteryTransportMode === 'flying' ? 'Aereo' : 'Traghetto' }}): {{ cemeteryDuration }}</strong>
+    </p>
+    <div class="mb-2" *ngIf="cemeteryTransportMode === 'flying' && cemeteryDepartureAirport && cemeteryArrivalAirport">
+      <div class="alert alert-info" role="alert">
+        <strong>✈️ Aeroporto Partenza:</strong> {{ cemeteryDepartureAirport.name }} ({{ cemeteryDepartureAirport.code }})<br>
+        <strong>✈️ Aeroporto Arrivo:</strong> {{ cemeteryArrivalAirport.name }} ({{ cemeteryArrivalAirport.code }})
+      </div>
+    </div>
+    <p class="mb-2" *ngIf="cemetery">
+      <a [href]="getGoogleMapsLink()" target="_blank" rel="noopener" class="btn btn-outline-primary">Apri il percorso in Google Maps</a>
+    </p>
   </div>
   <p class="lead">{{ cemetery.description }}</p>
 
@@ -20,130 +35,177 @@
   </div>
 
   <!-- Sezione Defunti -->
-<!-- Sezione Defunti -->
-<div class="deceased-section mb-5">
-  <div class="section-header mb-4">
-    <h4 class="section-title">
-      <i class="bi bi-book"></i>
-      I Defunti di {{ cemetery.name }}
-    </h4>
-    <p class="text-muted">{{ allDeceased.length }} persone ricordate</p>
-  </div>
-
-  <div class="row mb-4 g-3">
-    <div class="col-md-8">
-      <input [(ngModel)]="searchTerm" (input)="searchDeceased()" 
-             placeholder="Cerca un defunto per nome..." 
-             class="form-control form-control-lg search-input">
+  <div class="deceased-section mb-5">
+    <div class="section-header mb-4">
+      <h4 class="section-title">
+        <i class="bi bi-book"></i>
+        I Defunti di {{ cemetery.name }}
+      </h4>
+      <p class="text-muted">{{ allDeceased.length }} persone ricordate</p>
     </div>
-    <div class="col-md-4">
-      <button (click)="searchDeceased()" class="btn btn-blue w-100 h-100">
-        <i class="bi bi-search"></i> Cerca
-      </button>
-    </div>
-  </div>
 
-  <div class="deceased-grid" *ngIf="filteredDeceased.length > 0">
-    <div *ngFor="let d of filteredDeceased" class="deceased-card">
-      <div class="deceased-card-header">
-        <div class="deceased-info">
-          <h5 class="deceased-name">{{ d.fullName }}</h5>
-          <div class="deceased-dates">
-            <span class="date-badge">
-              <i class="bi bi-calendar-heart"></i> Nato: {{ d.birthDate | date:'dd/MM/yyyy' }}
-            </span>
-            <span class="date-separator">→</span>
-            <span class="date-badge">
-              <i class="bi bi-flower1"></i> Morto: {{ d.deathDate | date:'dd/MM/yyyy' }}
-            </span>
-          </div>
-        </div>
-        <div class="deceased-badge" [class.famous]="d.isFamous">
-          <i class="bi" [ngClass]="d.isFamous ? 'bi-star-fill' : 'bi-people-fill'"></i>
-        </div>
+    <div class="row mb-4 g-3">
+      <div class="col-md-8">
+        <input [(ngModel)]="searchTerm" (input)="searchDeceased()"
+               placeholder="Cerca un defunto per nome..."
+               class="form-control form-control-lg search-input">
       </div>
-
-      <div class="deceased-details">
-        <div class="detail-item" *ngIf="d.graveId">
-          <i class="bi bi-pin-map-fill"></i>
-          <span><strong>Tomba:</strong> {{ d.graveId }}</span>
-        </div>
-        <div class="detail-item" *ngIf="d.biography">
-          <i class="bi bi-file-text-fill"></i>
-          <span><strong>Biografia:</strong> {{ d.biography | slice:0:100 }}{{ d.biography.length > 100 ? '...' : '' }}</span>
-        </div>
-        <div class="detail-item" *ngIf="d.assignedUsers && d.assignedUsers.length > 0">
-          <i class="bi bi-people-fill"></i>
-          <span><strong>In cura da:</strong> {{ d.assignedUsers.length }} utenti</span>
-        </div>
-      </div>
-
-      <div class="deceased-card-footer">
-        <button class="btn btn-story" (click)="viewStory(d)">
-          <i class="bi bi-book-half"></i> Visualizza storia
+      <div class="col-md-4">
+        <button (click)="searchDeceased()" class="btn btn-blue w-100 h-100">
+          <i class="bi bi-search"></i> Cerca
         </button>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="filteredDeceased.length === 0" class="no-deceased-message">
-    <i class="bi bi-emoji-frown"></i>
-    <p>Nessun defunto trovato con il nome "{{ searchTerm }}"</p>
-    <small class="text-muted">Prova con un altro termine di ricerca</small>
-  </div>
-</div>
-
-  <div *ngIf="showDeceasedModal" class="deceased-modal-overlay" (click)="closeDeceasedModal()">
-    <div class="deceased-modal" (click)="$event.stopPropagation()">
-      <button class="modal-close" (click)="closeDeceasedModal()">✕</button>
-      <div class="modal-top">
-        <div class="modal-header no-image-header">
-          <h3>{{ selectedDeceased?.fullName }}</h3>
-          <p class="modal-dates">
-            <strong>Nato:</strong> {{ selectedDeceased?.birthDate | date:'dd/MM/yyyy' }}
-            <span *ngIf="selectedDeceased?.deathDate">→</span>
-            <strong *ngIf="selectedDeceased?.deathDate">Morto:</strong> {{ selectedDeceased?.deathDate | date:'dd/MM/yyyy' }}
-          </p>
-          <p *ngIf="selectedDeceased?.graveId"><strong>Tomba:</strong> {{ selectedDeceased?.graveId }}</p>
-          <p *ngIf="selectedDeceased?.assignedUsers?.length"><strong>In cura da:</strong> {{ selectedDeceased?.assignedUsers?.length || 0 }} utenti</p>
-          <div *ngIf="selectedDeceased?.graveDetails" class="grave-details">
-            <p *ngIf="selectedDeceased?.graveDetails?.section"><strong>Sezione:</strong> {{ selectedDeceased?.graveDetails?.section }}</p>
-            <p *ngIf="selectedDeceased?.graveDetails?.plotNumber"><strong>Plot:</strong> {{ selectedDeceased?.graveDetails?.plotNumber }}</p>
-            <p *ngIf="selectedDeceased?.graveDetails?.status"><strong>Stato:</strong> {{ selectedDeceased?.graveDetails?.status }}</p>
+    <div class="deceased-grid" *ngIf="filteredDeceased.length > 0">
+      <div *ngFor="let d of filteredDeceased" class="deceased-card">
+        <div class="deceased-card-header">
+          <div class="deceased-info">
+            <h5 class="deceased-name">{{ d.fullName }}</h5>
+            <div class="deceased-dates">
+              <span class="date-badge">
+                <i class="bi bi-calendar-heart"></i> Nato: {{ d.birthDate | date:'dd/MM/yyyy' }}
+              </span>
+              <span class="date-separator">→</span>
+              <span class="date-badge">
+                <i class="bi bi-flower1"></i> Morto: {{ d.deathDate | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+          </div>
+          <div class="deceased-badge" [class.famous]="d.isFamous">
+            <i class="bi" [ngClass]="d.isFamous ? 'bi-star-fill' : 'bi-people-fill'"></i>
           </div>
         </div>
-      </div>
 
-      <div class="modal-body">
-        <div>
-          <h4>La sua storia</h4>
-          <p *ngIf="selectedDeceased?.biography; else noBiography">{{ selectedDeceased?.biography }}</p>
-          <ng-template #noBiography>
-            <p class="text-muted">Storia non disponibile.</p>
-          </ng-template>
+        <div class="deceased-details">
+          <div class="detail-item" *ngIf="d.graveId">
+            <i class="bi bi-pin-map-fill"></i>
+            <span><strong>Tomba:</strong> {{ d.graveId }}</span>
+          </div>
+          <div class="detail-item" *ngIf="d.biography">
+            <i class="bi bi-file-text-fill"></i>
+            <span><strong>Biografia:</strong> {{ d.biography | slice:0:100 }}{{ d.biography.length > 100 ? '...' : '' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="d.assignedUsers && d.assignedUsers.length > 0">
+            <i class="bi bi-people-fill"></i>
+            <span><strong>In cura da:</strong> {{ d.assignedUsers.length }} utenti</span>
+          </div>
         </div>
 
-        <div class="modal-memories-section">
-          <h4>Ricordi</h4>
-          <app-memories-timeline
-            [deceasedId]="selectedDeceased?._id || selectedDeceased?.fullName || ''"
-            [deceasedName]="selectedDeceased?.fullName || ''">
-          </app-memories-timeline>
+        <div class="deceased-card-footer">
+          <!-- ✅ Nessun $event — il modale si centra sempre nel viewport -->
+          <button class="btn btn-story" (click)="viewStory(d)">
+            <i class="bi bi-book-half"></i> Visualizza storia
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="mt-5 p-4 border rounded bg-light">
-    <h5>🤖 Chiedi all’IA di Eterna Memoria</h5>
-    <input #aiInput placeholder="Es. Storia del cimitero o messaggio di ricordo" class="form-control mb-3">
-    <button (click)="askAI(aiInput.value); aiInput.value=''" class="btn btn-blue">Invia domanda</button>
-    <div *ngIf="aiAnswer" class="alert alert-info mt-3">
-      <strong>Risposta IA:</strong>
-      <p class="mb-0">{{ aiAnswer }}</p>
+    <div *ngIf="filteredDeceased.length === 0" class="no-deceased-message">
+      <i class="bi bi-emoji-frown"></i>
+      <p>Nessun defunto trovato con il nome "{{ searchTerm }}"</p>
+      <small class="text-muted">Prova con un altro termine di ricerca</small>
+    </div>
+
+    <div class="mt-5 p-4 border rounded bg-light">
+      <h5>🤖 Chiedi all'IA di Eterna Memoria</h5>
+      <input #aiInput placeholder="Es. Storia del cimitero o messaggio di ricordo" class="form-control mb-3">
+      <button (click)="askAI(aiInput.value); aiInput.value=''" class="btn btn-blue">Invia domanda</button>
+      <div *ngIf="aiAnswer" class="alert alert-info mt-3">
+        <strong>Risposta IA:</strong>
+        <p class="mb-0">{{ aiAnswer }}</p>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- ✅ MODALE — sempre centrato nel viewport grazie al flexbox dell'overlay -->
+<div *ngIf="showDeceasedModal" class="deceased-modal-overlay" (click)="closeDeceasedModal()">
+  <div class="deceased-modal" (click)="$event.stopPropagation()">
+
+    <div class="deceased-modal-sidebar">
+      <div class="deceased-avatar-circle">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div class="deceased-badge-famous" *ngIf="selectedDeceased?.isFamous">
+        <i class="bi bi-star-fill"></i> Illustre
+      </div>
+    </div>
+
+    <div class="deceased-modal-content">
+      <button class="modal-close" (click)="closeDeceasedModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="modal-name-block">
+        <h3>{{ selectedDeceased?.fullName }}</h3>
+        <div class="modal-years">
+          <span>{{ selectedDeceased?.birthDate | date:'yyyy' }}</span>
+          <span class="years-dash">—</span>
+          <span>{{ selectedDeceased?.deathDate | date:'yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="modal-meta-chips">
+        <div class="meta-chip" *ngIf="selectedDeceased?.birthDate">
+          <i class="bi bi-calendar-heart"></i>
+          {{ selectedDeceased?.birthDate | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="meta-chip" *ngIf="selectedDeceased?.deathDate">
+          <i class="bi bi-flower1"></i>
+          {{ selectedDeceased?.deathDate | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="meta-chip" *ngIf="selectedDeceased?.graveId">
+          <i class="bi bi-pin-map-fill"></i>
+          Tomba {{ selectedDeceased?.graveId }}
+        </div>
+        <div class="meta-chip" *ngIf="selectedDeceased?.assignedUsers?.length">
+          <i class="bi bi-people-fill"></i>
+          {{ selectedDeceased?.assignedUsers?.length }} utenti
+        </div>
+      </div>
+
+      <div class="modal-grave-details" *ngIf="selectedDeceased?.graveDetails">
+        <div class="grave-chip" *ngIf="selectedDeceased?.graveDetails?.section">
+          <span class="grave-label">Sezione</span>
+          <span>{{ selectedDeceased?.graveDetails?.section }}</span>
+        </div>
+        <div class="grave-chip" *ngIf="selectedDeceased?.graveDetails?.plotNumber">
+          <span class="grave-label">Plot</span>
+          <span>{{ selectedDeceased?.graveDetails?.plotNumber }}</span>
+        </div>
+        <div class="grave-chip" *ngIf="selectedDeceased?.graveDetails?.status">
+          <span class="grave-label">Stato</span>
+          <span>{{ selectedDeceased?.graveDetails?.status }}</span>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h4 class="modal-section-title">
+          <i class="bi bi-journal-text"></i> Biografia
+        </h4>
+        <p *ngIf="selectedDeceased?.biography; else noBio" class="modal-bio">
+          {{ selectedDeceased?.biography }}
+        </p>
+        <ng-template #noBio>
+          <p class="text-muted modal-bio-empty">Nessuna biografia disponibile.</p>
+        </ng-template>
+      </div>
+
+      <div class="modal-section">
+        <h4 class="modal-section-title">
+          <i class="bi bi-chat-heart"></i> Ricordi
+        </h4>
+        <app-memories-timeline
+          [deceasedId]="selectedDeceased?._id || selectedDeceased?.fullName || ''"
+          [deceasedName]="selectedDeceased?.fullName || ''">
+        </app-memories-timeline>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <ng-template #notFound>
   <p class="text-center">Cimitero non trovato.</p>
 </ng-template>

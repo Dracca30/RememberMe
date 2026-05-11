@@ -61,6 +61,11 @@ body {
   background-attachment: fixed;
 }
 
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
 .text-gold {
   color: var(--accent);
 }
