@@ -7,6 +7,7 @@ import { NavbarComponent } from '../../Components/navbar/navbar.component';
 import { CookieBannerComponent } from '../../Components/cookie-banner/cookie-banner.component';
 import { BottomBarComponent } from '../../Components/bottom-bar/bottom-bar.component';
 import { FooterComponent } from '../../Components/footer/footer.component';
+import { LoginComponent } from '../../Components/login/login.component';
 import { AuthService, AuthUser } from '../../Services/auth.service';
 
 interface User {
@@ -19,7 +20,7 @@ interface User {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent, LoginComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
@@ -46,6 +47,8 @@ export class SettingsComponent implements OnInit {
   currentYear: number = new Date().getFullYear();
 
   cacheSize: string = '0 MB';
+
+  isLoginModalOpen: boolean = false;
 
 
 
@@ -204,7 +207,12 @@ export class SettingsComponent implements OnInit {
   }
 
   openLogin(): void {
-    this.router.navigate(['/login']);
+    this.isLoginModalOpen = true;
+  }
+
+  onLoginModalClosed(): void {
+    this.isLoginModalOpen = false;
+    this.checkLoginStatus();
   }
 
   logout(): void {

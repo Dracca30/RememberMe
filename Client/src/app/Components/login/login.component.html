@@ -1,22 +1,16 @@
-<app-navbar></app-navbar>
-
-<div class="login-container pb-32">
-  <header class="login-header">
-    <button class="back-btn mobile-only" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i>
+<div class="login-modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="login-modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()" aria-label="Chiudi">
+      <i class="bi bi-x-lg"></i>
     </button>
-    <h1>Accedi</h1>
-    <div class="header-spacer"></div>
-  </header>
 
-  <section class="login-section">
-    <div class="login-card glass-card">
+    <div class="modal-content">
       <div class="login-icon">
         <i class="bi bi-box-arrow-in-right"></i>
       </div>
       
-      <h2>Benvenuto</h2>
-      <p class="login-subtitle">Accedi al tuo account per continuare</p>
+      <h2>Accedi al tuo account</h2>
+      <p class="login-subtitle">Inserisci le tue credenziali per continuare</p>
 
       <form (submit)="handleLogin($event)" class="login-form">
         <div class="form-group">
@@ -24,7 +18,7 @@
           <input 
             type="email" 
             id="email"
-            placeholder="Inserisci la tua email" 
+            placeholder="nome@example.com" 
             [(ngModel)]="loginEmail" 
             name="email" 
             required>
@@ -35,7 +29,7 @@
           <input 
             type="password" 
             id="password"
-            placeholder="Inserisci la tua password" 
+            placeholder="••••••••" 
             [(ngModel)]="loginPassword" 
             name="password" 
             required>
@@ -47,29 +41,10 @@
         </button>
       </form>
 
-      <div class="login-divider">
-        <span>oppure</span>
-      </div>
-
-      <div class="alternative-login">
-        <button type="button" class="social-btn google">
-          <i class="bi bi-google"></i>
-          Google
-        </button>
-        <button type="button" class="social-btn facebook">
-          <i class="bi bi-facebook"></i>
-          Facebook
-        </button>
-      </div>
-
       <div class="login-footer">
-        <p>Non hai un account? <a routerLink="/register">Registrati</a></p>
+        <p>Non hai un account? <a routerLink="/register" (click)="closeModal()">Registrati</a></p>
         <p><a href="#forgot-password">Password dimenticata?</a></p>
       </div>
     </div>
-  </section>
+  </div>
 </div>
-
-<app-cookie-banner></app-cookie-banner>
-<app-bottom-bar></app-bottom-bar>
-<app-footer></app-footer>

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 
 export interface AuthUser {
   role: 'user' | 'employee';
@@ -28,11 +29,10 @@ export class AuthService {
   }
 
   private loadCurrentUser(): void {
-    const storedUser = localStorage.getItem(this.USER_KEY);
-    if (storedUser) {
+    const stored = localStorage.getItem(this.USER_KEY);
+    if (stored) {
       try {
-        const user = JSON.parse(storedUser) as AuthUser;
-        this.userSubject.next(user);
+        this.userSubject.next(JSON.parse(stored) as AuthUser);
       } catch {
         this.userSubject.next(null);
       }
@@ -50,9 +50,9 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthUser> {
-    return this.http.post<AuthUser>(`${this.API_URL}/users`, { email, password })
-      .pipe(tap(user => this.saveCurrentUser(user)));
-  }
+  return this.http.post<AuthUser>(`${this.API_URL}/users`, { email, password })
+    .pipe(tap(user => this.saveCurrentUser(user)));
+}
 
   logout(): void {
     this.saveCurrentUser(null);
@@ -64,5 +64,9 @@ export class AuthService {
 
   getCurrentUser(): AuthUser | null {
     return this.userSubject.value;
+  }
+
+  getUserRole(): 'user' | 'employee' | null {
+    return this.userSubject.value?.role ?? null;
   }
 }

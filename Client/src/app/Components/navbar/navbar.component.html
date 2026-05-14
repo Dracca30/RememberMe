@@ -15,6 +15,26 @@
         <span>Mappa</span>
       </button>
 
+      <!-- Visibile solo agli USER loggati -->
+      <button
+        *ngIf="authService.isLoggedIn() && authService.getUserRole() === 'user'"
+        (click)="goToParenti()"
+        class="nav-btn"
+        [class.active]="activeSection === 'parenti'">
+        <i class="bi bi-people"></i>
+        <span>Parenti</span>
+      </button>
+
+      <!-- Visibile solo agli EMPLOYEE loggati -->
+      <button
+        *ngIf="authService.isLoggedIn() && authService.getUserRole() === 'employee'"
+        (click)="goToAggiungiDeceduto()"
+        class="nav-btn"
+        [class.active]="activeSection === 'aggiungi-deceduto'">
+        <i class="bi bi-plus-circle"></i>
+        <span>Aggiungi deceduto</span>
+      </button>
+
       <button (click)="goToSettings()" class="nav-btn" [class.active]="activeSection === 'settings'">
         <i class="bi bi-gear"></i>
         <span>Impostazioni</span>

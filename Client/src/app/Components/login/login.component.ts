@@ -1,37 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { NavbarComponent } from '../../Components/navbar/navbar.component';
-import { CookieBannerComponent } from '../../Components/cookie-banner/cookie-banner.component';
-import { BottomBarComponent } from '../../Components/bottom-bar/bottom-bar.component';
-import { FooterComponent } from '../../Components/footer/footer.component';
 import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
+  @Input() isOpen: boolean = false;
+  @Output() modalClosed = new EventEmitter<void>();
+
   loginEmail: string = '';
   loginPassword: string = '';
 
   constructor(
     private router: Router,
-    private location: Location,
     private authService: AuthService
   ) {}
 
-  ngOnInit(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  goBack(): void {
-    this.location.back();
+  closeModal(): void {
+    this.loginEmail = '';
+    this.loginPassword = '';
+    this.modalClosed.emit();
   }
 
   handleLogin(event: Event): void {
@@ -46,6 +41,7 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(email, this.loginPassword).subscribe({
       next: (account) => {
+        this.closeModal();
         sessionStorage.setItem('loginSuccessMessage', `Benvenuto ${account.fullName || account.username}! Accesso effettuato con successo.`);
         this.router.navigate(['/']);
       },

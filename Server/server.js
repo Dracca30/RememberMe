@@ -70,7 +70,7 @@ app.post('/api/users', async (req, res) => {
         if (valid) {
           authUser = {
             role: 'user',
-            username: user.username,
+            username: user.fullName,
             email: user.email,
             userId: user._id,
             municipalityId: user.municipalityId,

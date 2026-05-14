@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -16,7 +17,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   activeSection: string = 'home';
   private routerSubscription: Subscription;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    public authService: AuthService   // public → accessibile nel template
+  ) {
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -46,7 +50,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private updateActiveState(): void {
     const url = this.router.url;
-
     if (url === '/' || url === '/home') {
       this.activeSection = 'home';
     } else if (url === '/map') {
@@ -55,24 +58,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.activeSection = 'scan';
     } else if (url === '/settings') {
       this.activeSection = 'settings';
+    } else if (url === '/parenti') {
+      this.activeSection = 'parenti';
+    } else if (url === '/aggiungi-deceduto') {
+      this.activeSection = 'aggiungi-deceduto';
     } else {
       this.activeSection = '';
     }
   }
 
-  goToHome() {
-    this.router.navigate(['/']);
-  }
-
-  goToMap() {
-    this.router.navigate(['/map']);
-  }
-
-  goToScan() {
-    this.router.navigate(['/scan']);
-  }
-
-  goToSettings() {
-    this.router.navigate(['/settings']);
-  }
+  goToHome() { this.router.navigate(['/']); }
+  goToMap() { this.router.navigate(['/map']); }
+  goToScan() { this.router.navigate(['/scan']); }
+  goToSettings() { this.router.navigate(['/settings']); }
+  goToParenti() { this.router.navigate(['/parenti']); }
+  goToAggiungiDeceduto() { this.router.navigate(['/aggiungi-deceduto']); }
 }
