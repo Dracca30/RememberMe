@@ -1,13 +1,10 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "cd Client && npm install && npm run build",
+  "outputDirectory": "Client/dist/remember-me",
+  "rewrites": [
     {
-      "src": "Client/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist/remember-me" }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    { "src": "^/(.*)$", "dest": "/dist/remember-me/$1" }
   ]
 }
