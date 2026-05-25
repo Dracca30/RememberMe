@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-bottom-bar',
@@ -11,14 +12,20 @@ import { Subscription } from 'rxjs';
 export class BottomBarComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   activeSection: string = 'home';
+  userRole: 'user' | 'employee' | null = null;
   private routerSubscription: Subscription;
+  private authSubscription: Subscription;
   
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
     this.checkScreenSize();
+    this.userRole = this.authService.getUserRole();
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateActiveState();
+    });
+    this.authSubscription = this.authService.user$.subscribe(user => {
+      this.userRole = user?.role ?? null;
     });
   }
   
@@ -29,6 +36,9 @@ export class BottomBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
     }
   }
   
@@ -52,6 +62,10 @@ export class BottomBarComponent implements OnInit, OnDestroy {
       this.activeSection = 'settings';
     } else if (url === '/map') {
       this.activeSection = 'map';
+    } else if (url.startsWith('/parenti')) {
+      this.activeSection = 'parenti';
+    } else if (url.startsWith('/aggiungi-deceduto')) {
+      this.activeSection = 'aggiungi-deceduto';
     }
     
   }
@@ -84,6 +98,18 @@ export class BottomBarComponent implements OnInit, OnDestroy {
   goToSettings(): void {
     this.router.navigate(['/settings']).then(() => {
       this.activeSection = 'settings';
+    });
+  }
+
+  goToParenti(): void {
+    this.router.navigate(['/parenti']).then(() => {
+      this.activeSection = 'parenti';
+    });
+  }
+
+  goToGestione(): void {
+    this.router.navigate(['/aggiungi-deceduto']).then(() => {
+      this.activeSection = 'aggiungi-deceduto';
     });
   }
   

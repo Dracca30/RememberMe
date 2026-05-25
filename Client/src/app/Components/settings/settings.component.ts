@@ -9,6 +9,7 @@ import { BottomBarComponent } from '../../Components/bottom-bar/bottom-bar.compo
 import { FooterComponent } from '../../Components/footer/footer.component';
 import { LoginComponent } from '../../Components/login/login.component';
 import { AuthService, AuthUser } from '../../Services/auth.service';
+import { NotificationService } from '../../Services/notification.service';
 
 interface User {
   name: string;
@@ -20,7 +21,7 @@ interface User {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent, LoginComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, CookieBannerComponent, FooterComponent, LoginComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
@@ -55,7 +56,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     private router: Router,
     private location: Location,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: NotificationService
   ) {
     this.loadSettings();
     this.checkLoginStatus();
@@ -134,7 +136,7 @@ export class SettingsComponent implements OnInit {
     this.currentTheme = theme;
     this.applyTheme(theme);
     this.saveSettings();
-    this.showToast(`Tema ${theme} attivato`);
+    this.notification.show(`Tema ${theme} attivato`, 'info');
   }
 
   private applyTheme(theme: string): void {
@@ -151,7 +153,7 @@ export class SettingsComponent implements OnInit {
 
   changeLanguage(): void {
     this.saveSettings();
-    this.showToast(`Lingua cambiata in ${this.getLanguageName(this.selectedLanguage)}`);
+    this.notification.show(`Lingua cambiata in ${this.getLanguageName(this.selectedLanguage)}`, 'info');
   }
 
   private getLanguageName(code: string): string {
@@ -192,18 +194,20 @@ export class SettingsComponent implements OnInit {
   }
 
   clearCache(): void {
-    if (confirm('Sei sicuro di voler cancellare la cache?')) {
-      setTimeout(() => {
-        this.cacheSize = '0 MB';
-        this.showToast('Cache cancellata con successo', 'success');
+    this.notification.confirm('Cancellare la cache? I dati di sistema verranno conservati.', 'Cancella cache').then(confirmed => {
+      if (confirmed) {
+        setTimeout(() => {
+          this.cacheSize = '0 MB';
+          this.notification.show('Cache cancellata con successo', 'success');
 
-        const settings = localStorage.getItem('appSettings');
-        const user = localStorage.getItem('rememberme_currentUser');
-        localStorage.clear();
-        if (settings) localStorage.setItem('appSettings', settings);
-        if (user) localStorage.setItem('rememberme_currentUser', user);
-      }, 1000);
-    }
+          const settings = localStorage.getItem('appSettings');
+          const user = localStorage.getItem('rememberme_currentUser');
+          localStorage.clear();
+          if (settings) localStorage.setItem('appSettings', settings);
+          if (user) localStorage.setItem('rememberme_currentUser', user);
+        }, 500);
+      }
+    });
   }
 
   openLogin(): void {
@@ -216,15 +220,17 @@ export class SettingsComponent implements OnInit {
   }
 
   logout(): void {
-    if (confirm('Sei sicuro di voler uscire?')) {
-      this.isLoggedIn = false;
-      this.userName = '';
-      this.userEmail = '';
-      this.userAvatar = '';
-      this.isPremium = false;
-      this.authService.logout();
-      this.showToast('Logout effettuato', 'info');
-    }
+    this.notification.confirm('Sei sicuro di voler uscire dal tuo account?', 'Esci').then(confirmed => {
+      if (confirmed) {
+        this.isLoggedIn = false;
+        this.userName = '';
+        this.userEmail = '';
+        this.userAvatar = '';
+        this.isPremium = false;
+        this.authService.logout();
+        this.notification.show('Logout effettuato con successo', 'info');
+      }
+    });
   }
 
   openPrivacyPolicy(): void { window.open('https://example.com/privacy', '_blank'); }
@@ -247,8 +253,8 @@ export class SettingsComponent implements OnInit {
   }
 
   checkForUpdates(): void {
-    this.showToast('Verifica aggiornamenti in corso...', 'info');
-    setTimeout(() => this.showToast('Hai già la versione più recente!', 'success'), 2000);
+    this.notification.show('Verifica aggiornamenti in corso...', 'info');
+    setTimeout(() => this.notification.show('Hai già la versione più recente!', 'success'), 2000);
   }
 
   rateApp(): void {
@@ -267,35 +273,5 @@ export class SettingsComponent implements OnInit {
       'instagram': 'https://instagram.com/example'
     };
     if (urls[platform]) window.open(urls[platform], '_blank');
-  }
-
-  private showToast(message: string, type: 'success' | 'warning' | 'info' | 'error' = 'info'): void {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    toast.style.cssText = `
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-      background: ${this.getToastColor(type)}; color: white; padding: 12px 24px;
-      border-radius: 50px; font-size: 0.9rem; font-weight: 500;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000;
-      animation: slideUp 0.3s ease; max-width: 90%; text-align: center;
-    `;
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.animation = 'slideDown 0.3s ease';
-      setTimeout(() => document.body.removeChild(toast), 300);
-    }, 3000);
-  }
-
-  private getToastColor(type: string): string {
-    const colors: { [key: string]: string } = {
-      'success': '#4caf50',
-      'warning': '#ff9800',
-      'info': '#00d4ff',
-      'error': '#f44336'
-    };
-    return colors[type] || colors['info'];
   }
 }

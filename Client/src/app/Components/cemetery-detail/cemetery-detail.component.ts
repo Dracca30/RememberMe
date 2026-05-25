@@ -20,7 +20,7 @@ import { Deceased } from '../../Interfaces/Deceased';
 @Component({
   selector: 'app-cemetery-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, MemoriesTimelineComponent, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, MemoriesTimelineComponent, NavbarComponent, CookieBannerComponent, FooterComponent],
   templateUrl: './cemetery-detail.component.html',
   styleUrls: ['./cemetery-detail.component.scss']
 })

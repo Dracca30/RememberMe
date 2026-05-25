@@ -7,6 +7,8 @@ import { MapFullscreenComponent } from './Components/map-fullscreen/map-fullscre
 import { LoginComponent } from './Components/login/login.component';
 import { ParentiComponent } from './Components/relatives/relatives.component';
 import { DeceasedProfileComponent } from './Components/deceased-profile/deceased-profile.component';
+import { RegisterComponent } from './Components/register/register.component';
+import { EmployeeDashboardComponent } from './Components/employee-dashboard/employee-dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -15,7 +17,9 @@ export const routes: Routes = [
   { path: 'scan', component: QrScannerComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'parenti', component: ParentiComponent },
   { path: 'parenti/:id', component: DeceasedProfileComponent },
+  { path: 'aggiungi-deceduto', component: EmployeeDashboardComponent },
   { path: '**', redirectTo: '' }
 ];

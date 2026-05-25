@@ -15,16 +15,24 @@ import { AuthService } from '../../Services/auth.service';
 export class NavbarComponent implements OnInit, OnDestroy {
   isDesktop: boolean = true;
   activeSection: string = 'home';
+  isLoggedIn: boolean = false;
+  userRole: 'user' | 'employee' | null = null;
   private routerSubscription: Subscription;
+  private authSubscription: Subscription;
 
   constructor(
     private router: Router,
-    public authService: AuthService   // public → accessibile nel template
+    public authService: AuthService
   ) {
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateActiveState();
+    });
+
+    this.authSubscription = this.authService.user$.subscribe(user => {
+      this.isLoggedIn = !!user;
+      this.userRole = user?.role ?? null;
     });
   }
 
@@ -36,6 +44,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
     }
   }
 
@@ -73,4 +84,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
   goToSettings() { this.router.navigate(['/settings']); }
   goToParenti() { this.router.navigate(['/parenti']); }
   goToAggiungiDeceduto() { this.router.navigate(['/aggiungi-deceduto']); }
+  goToRegister() { this.router.navigate(['/register']); }
 }

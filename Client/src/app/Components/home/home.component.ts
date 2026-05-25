@@ -14,7 +14,7 @@ import { FooterComponent } from '../footer/footer.component';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, CookieBannerComponent, NavbarComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, CookieBannerComponent, NavbarComponent, FooterComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

@@ -50,9 +50,13 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthUser> {
-  return this.http.post<AuthUser>(`${this.API_URL}/users`, { email, password })
-    .pipe(tap(user => this.saveCurrentUser(user)));
-}
+    return this.http.post<AuthUser>(`${this.API_URL}/users`, { email, password })
+      .pipe(tap(user => this.saveCurrentUser(user)));
+  }
+
+  register(payload: { username: string; fullName: string; email: string; password: string; municipalityId?: string | null; createdBy?: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/users/register`, payload);
+  }
 
   logout(): void {
     this.saveCurrentUser(null);

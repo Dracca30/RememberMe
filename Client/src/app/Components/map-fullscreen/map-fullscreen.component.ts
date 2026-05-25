@@ -14,7 +14,7 @@ import { FooterComponent } from '../footer/footer.component';
 @Component({
   selector: 'app-map-fullscreen',
   standalone: true,
-  imports: [CommonModule, CookieBannerComponent, NavbarComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, CookieBannerComponent, NavbarComponent, FooterComponent],
   templateUrl: './map-fullscreen.component.html',
   styleUrls: ['./map-fullscreen.component.scss']
 })

@@ -1,0 +1,45 @@
+<app-navbar></app-navbar>
+<div class="register-page pb-32">
+  <div class="register-card glass-card">
+    <div class="register-header">
+      <h1>Registrazione</h1>
+      <p>Apri il tuo spazio per custodire i ricordi e connetterti ai familiari.</p>
+    </div>
+
+    <form (submit)="handleRegister($event)" class="register-form">
+      <div class="form-row">
+        <label for="fullName">Nome completo</label>
+        <input id="fullName" type="text" [(ngModel)]="registerFullName" name="fullName" required placeholder="Mario Rossi">
+      </div>
+
+      <div class="form-row">
+        <label for="username">Nome utente</label>
+        <input id="username" type="text" [(ngModel)]="registerUsername" name="username" placeholder="mariorossi">
+      </div>
+
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input id="email" type="email" [(ngModel)]="registerEmail" name="email" required placeholder="nome@example.com">
+      </div>
+
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input id="password" type="password" [(ngModel)]="registerPassword" name="password" required placeholder="••••••••">
+      </div>
+
+      <div class="form-row">
+        <label for="municipalityId">Municipalità</label>
+        <input id="municipalityId" type="text" [(ngModel)]="municipalityId" name="municipalityId" placeholder="ROMA_MUNICIPALITY_ID">
+      </div>
+
+      <button type="submit" class="btn btn-blue register-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Registrazione in corso...' : 'Crea account' }}
+      </button>
+
+      <p class="login-link">
+        Hai già un account? <a routerLink="/login">Accedi</a>
+      </p>
+    </form>
+  </div>
+</div>
+<app-footer></app-footer>

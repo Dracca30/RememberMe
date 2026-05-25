@@ -30,7 +30,7 @@ app.post('/api/users', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
-      return res.status(400).json({ message: 'Email e password sono necessari' });
+      return res.status(401).json({ message: 'Email o password non validi' });
 
     const normalizedEmail = email.trim().toLowerCase();
     const emailQuery = { email: { $regex: `^${normalizedEmail}$`, $options: 'i' } };
@@ -76,6 +76,42 @@ app.post('/api/users', async (req, res) => {
   } catch (err) {
     console.error('Errore login:', err);
     res.status(500).json({ message: 'Errore interno durante il login' });
+  }
+});
+
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const { username, fullName, email, password, municipalityId, createdBy } = req.body;
+    if (!username || !fullName || !email || !password)
+      return res.status(400).json({ message: 'Dati di registrazione incompleti' });
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await Users.findOne({ email: { $regex: `^${normalizedEmail}$`, $options: 'i' } });
+    if (existing)
+      return res.status(409).json({ message: 'Impossibile completare la registrazione' });
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new Users({
+      username: username.trim(),
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      passwordHash,
+      municipalityId: municipalityId || null,
+      createdBy: createdBy || 'SELF',
+      assignedDeceased: []
+    });
+
+    const saved = await user.save();
+    res.status(201).json({
+      _id: saved._id,
+      username: saved.username,
+      fullName: saved.fullName,
+      email: saved.email,
+      municipalityId: saved.municipalityId
+    });
+  } catch (err) {
+    console.error('Errore registrazione:', err);
+    res.status(500).json({ message: 'Errore interno durante la registrazione' });
   }
 });
 
@@ -174,6 +210,110 @@ app.get('/api/Cemeteries/:id/Deceased', async (req, res) => {
 // ════════════════════════════════════════════════════════
 
 // ⚠️ /search PRIMA di /:id altrimenti Express legge "search" come un id
+app.get('/api/Deceaseds', async (req, res) => {
+  try {
+    const filter = {};
+    const deceased = await Deceased.find(filter).populate('assignedUsers', 'email fullName');
+    res.json(deceased);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.patch('/api/Deceaseds/:id', async (req, res) => {
+  try {
+    const update = {};
+    const allowed = ['fullName', 'birthDate', 'deathDate', 'biography', 'story', 'graveId', 'deceasedImage', 'epitaph'];
+
+    allowed.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        if (field === 'epitaph') {
+          update.biography = req.body.epitaph;
+        } else {
+          update[field] = req.body[field];
+        }
+      }
+    });
+
+    const deceased = await Deceased.findByIdAndUpdate(req.params.id, update, { new: true }).populate('assignedUsers', 'email fullName');
+    if (!deceased) return res.status(404).json({ message: 'Defunto non trovato' });
+    res.json(deceased);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/api/Deceaseds/:id', async (req, res) => {
+  try {
+    const deceased = await Deceased.findByIdAndDelete(req.params.id);
+    if (!deceased) return res.status(404).json({ message: 'Defunto non trovato' });
+
+    if (deceased.assignedUsers && deceased.assignedUsers.length) {
+      await Users.updateMany(
+        { _id: { $in: deceased.assignedUsers } },
+        { $pull: { assignedDeceased: deceased._id } }
+      );
+    }
+
+    res.json({ message: 'Defunto eliminato' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.patch('/api/Deceaseds/:id/assign', async (req, res) => {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+    if (!email) return res.status(400).json({ message: 'Email richiesta' });
+
+    const user = await Users.findOne({ email: { $regex: `^${email}$`, $options: 'i' } });
+    if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+
+    const deceased = await Deceased.findById(req.params.id);
+    if (!deceased) return res.status(404).json({ message: 'Defunto non trovato' });
+
+    const userId = user._id;
+    if (!deceased.assignedUsers.some((id) => id.equals(userId))) {
+      deceased.assignedUsers.push(userId);
+      await deceased.save();
+    }
+
+    if (!user.assignedDeceased.some((id) => id.equals(deceased._id))) {
+      user.assignedDeceased.push(deceased._id);
+      await user.save();
+    }
+
+    const updated = await Deceased.findById(req.params.id).populate('assignedUsers', 'email fullName');
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.patch('/api/Deceaseds/:id/unassign', async (req, res) => {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+    if (!email) return res.status(400).json({ message: 'Email richiesta' });
+
+    const user = await Users.findOne({ email: { $regex: `^${email}$`, $options: 'i' } });
+    if (!user) return res.status(404).json({ message: 'Utente non trovato' });
+
+    const deceased = await Deceased.findById(req.params.id);
+    if (!deceased) return res.status(404).json({ message: 'Defunto non trovato' });
+
+    deceased.assignedUsers = deceased.assignedUsers.filter((id) => !id.equals(user._id));
+    await deceased.save();
+
+    user.assignedDeceased = user.assignedDeceased.filter((id) => !id.equals(deceased._id));
+    await user.save();
+
+    const updated = await Deceased.findById(req.params.id).populate('assignedUsers', 'email fullName');
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 app.get('/api/Deceaseds/search', async (req, res) => {
   try {
     const name = req.query.name;

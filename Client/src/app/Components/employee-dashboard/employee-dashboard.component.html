@@ -1,0 +1,102 @@
+<app-navbar></app-navbar>
+<div class="admin-page pb-32">
+  <div class="admin-header">
+    <div class="header-text">
+      <h1>Gestione Comunale</h1>
+      <p>Qui puoi aggiungere, modificare o eliminare i defunti e collegarli a un profilo parente.</p>
+    </div>
+  </div>
+
+  <div class="admin-layout glass-card">
+    <section class="admin-form">
+      <h2>{{ selectedDeceasedId ? 'Modifica defunto' : 'Aggiungi nuovo defunto' }}</h2>
+      <form (submit)="submitForm($event)">
+        <label>
+          Nome completo
+          <input type="text" [(ngModel)]="form.fullName" name="fullName" required placeholder="Nome Cognome">
+        </label>
+
+        <label>
+          Data di nascita
+          <input type="date" [(ngModel)]="form.birthDate" name="birthDate" required>
+        </label>
+
+        <label>
+          Data di morte
+          <input type="date" [(ngModel)]="form.deathDate" name="deathDate" required>
+        </label>
+
+        <label>
+          Gravestone / ID tomba
+          <input type="text" [(ngModel)]="form.graveId" name="graveId" placeholder="Esempio: TOMBA_1234">
+        </label>
+
+        <label>
+          Immagine del defunto (URL)
+          <input type="text" [(ngModel)]="form.deceasedImage" name="deceasedImage" placeholder="https://...">
+        </label>
+
+        <label>
+          Biografia
+          <textarea [(ngModel)]="form.biography" name="biography" rows="4" placeholder="Informazioni aggiuntive..."></textarea>
+        </label>
+
+        <label>
+          Frase commemorativa
+          <textarea [(ngModel)]="form.epitaph" name="epitaph" rows="3" placeholder="Una frase breve..."></textarea>
+        </label>
+
+        <div class="actions-row">
+          <button type="submit" class="btn btn-blue" [disabled]="isSaving">
+            {{ selectedDeceasedId ? 'Aggiorna defunto' : 'Aggiungi defunto' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="selectedDeceasedId">Annulla</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="admin-list">
+      <h2>Elenco defunti</h2>
+      <div class="empty-state" *ngIf="!loading && deceased.length === 0">
+        Nessun defunto presente. Inserisci almeno un defunto per abilitare le associazioni.
+      </div>
+
+      <div class="deceased-card" *ngFor="let item of deceased">
+        <div class="card-header">
+          <div>
+            <h3>{{ item.fullName }}</h3>
+            <span>{{ item.birthDate | date:'dd/MM/yyyy' }} — {{ item.deathDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" type="button" (click)="editDeceased(item)">Modifica</button>
+            <button class="icon-btn danger" type="button" (click)="deleteDeceased(item._id)">Elimina</button>
+          </div>
+        </div>
+
+        <div class="assigned-users">
+          <strong>Parenti associati:</strong>
+          <div *ngIf="item.assignedUsers?.length; else noAssigned">
+            <div class="assigned-user" *ngFor="let user of item.assignedUsers">
+              <span>{{ user.fullName || user.email }}</span>
+              <button class="icon-btn small" type="button" (click)="unassignUser(item, user)">Rimuovi</button>
+            </div>
+          </div>
+          <ng-template #noAssigned>
+            <span>Nessun parente associato</span>
+          </ng-template>
+        </div>
+
+        <div class="assign-form">
+          <input
+            type="email"
+            placeholder="Email parente da collegare"
+            [(ngModel)]="assignEmails[item._id]"
+            name="assignEmail-{{ item._id }}"
+          >
+          <button class="btn btn-blue" type="button" (click)="assignToEmail(item)">Associa</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+<app-footer></app-footer>

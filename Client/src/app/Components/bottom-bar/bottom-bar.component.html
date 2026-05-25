@@ -16,6 +16,18 @@
       <span>SCAN</span>
     </button>
 
+    @if (userRole === 'user') {
+      <button (click)="goToParenti()" class="hud-btn" [class.active]="activeSection === 'parenti'">
+        <i class="bi bi-people"></i>
+        <span>PARENTI</span>
+      </button>
+    } @else if (userRole === 'employee') {
+      <button (click)="goToGestione()" class="hud-btn" [class.active]="activeSection === 'gestione'">
+        <i class="bi bi-shield-check"></i>
+        <span>GESTIONE</span>
+      </button>
+    }
+
     <button (click)="goToSettings()" class="hud-btn" [class.active]="activeSection === 'settings'">
       <i class="bi bi-gear"></i>
       <span>IMPOSTAZIONI</span>

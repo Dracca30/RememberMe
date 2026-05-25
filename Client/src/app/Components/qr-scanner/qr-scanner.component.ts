@@ -10,7 +10,7 @@ import { QrScannerService } from '../../Services/qr-scanner.service';
 @Component({
   selector: 'app-qr-scanner',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, CookieBannerComponent, BottomBarComponent, FooterComponent],
+  imports: [CommonModule, NavbarComponent, CookieBannerComponent, FooterComponent],
   templateUrl: './qr-scanner.component.html'
 })
 export class QrScannerComponent implements OnDestroy {

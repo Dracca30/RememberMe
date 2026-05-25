@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BottomBarComponent } from './Components/bottom-bar/bottom-bar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, BottomBarComponent],
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
