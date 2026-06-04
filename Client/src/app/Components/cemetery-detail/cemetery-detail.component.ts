@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { CemeteryService } from '../../Services/cemetery.service';
 import { LeafletMapService, TransportMode, RouteInfo } from '../../Services/leaflet-map.service';
-import { AiHelperService } from '../../Services/ai-helper.service';
 import { GeolocationService } from '../../Services/geolocation.service';
 
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -50,7 +49,6 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
     public router: Router,
     private cemeteryService: CemeteryService,
     private mapService: LeafletMapService,
-    private aiService: AiHelperService,
     private geoService: GeolocationService
   ) { }
 
@@ -203,18 +201,5 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
     document.body.style.top = '';
     document.body.style.width = '';
     document.body.style.overflowY = '';
-  }
-
-  askAI(question: string) {
-    if (!this.cemetery) {
-      this.aiAnswer = 'Cimitero non disponibile. Riprova più tardi.';
-      return;
-    }
-    const trimmedQuestion = question?.trim();
-    if (!trimmedQuestion) {
-      this.aiAnswer = 'Inserisci una domanda sul cimitero o sui defunti.';
-      return;
-    }
-    this.aiAnswer = this.aiService.getResponse(trimmedQuestion, this.cemetery, this.allDeceased);
   }
 }

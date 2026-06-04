@@ -13,6 +13,7 @@ export class BottomBarComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   activeSection: string = 'home';
   userRole: 'user' | 'employee' | null = null;
+  isMenuExpanded: boolean = false;
   private routerSubscription: Subscription;
   private authSubscription: Subscription;
   
@@ -74,6 +75,7 @@ export class BottomBarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/map']).then(() => {
       this.activeSection = 'map';
     });
+    this.closeMenu();
   }
 
   goToHome(): void {
@@ -87,36 +89,50 @@ export class BottomBarComponent implements OnInit, OnDestroy {
         this.activeSection = 'home';
       });
     }
+    this.closeMenu();
   }
   
   goToScan(): void {
     this.router.navigate(['/scan']).then(() => {
       this.activeSection = 'scan';
     });
+    this.closeMenu();
   }
   
   goToSettings(): void {
     this.router.navigate(['/settings']).then(() => {
       this.activeSection = 'settings';
     });
+    this.closeMenu();
   }
 
   goToParenti(): void {
     this.router.navigate(['/parenti']).then(() => {
       this.activeSection = 'parenti';
     });
+    this.closeMenu();
   }
 
   goToGestione(): void {
     this.router.navigate(['/aggiungi-deceduto']).then(() => {
       this.activeSection = 'aggiungi-deceduto';
     });
+    this.closeMenu();
   }
 
   goToRegister(): void {
     this.router.navigate(['/register']).then(() => {
       this.activeSection = 'register';
     });
+    this.closeMenu();
+  }
+
+  toggleMenu(): void {
+    this.isMenuExpanded = !this.isMenuExpanded;
+  }
+
+  closeMenu(): void {
+    this.isMenuExpanded = false;
   }
   
   private smoothScrollToTop(): void {

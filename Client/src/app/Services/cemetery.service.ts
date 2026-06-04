@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { Cemetery } from '../Interfaces/Cemetery';
 import { Deceased } from '../Interfaces/Deceased';
 import { Memory } from '../Interfaces/Memory';
+import { environment } from '../../Environments/environments'
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ import { Memory } from '../Interfaces/Memory';
 export class CemeteryService {
 
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/Cemeteries';
-  private deceasedApiUrl = 'http://localhost:3000/api/Deceaseds';
+  private apiUrl = `${environment.apiUrl}/api/Cemeteries`;
+  private deceasedApiUrl = `${environment.apiUrl}/api/Deceaseds`;
 
   getAllCemeteries(): Observable<Cemetery[]> {
     return this.http.get<Cemetery[]>(this.apiUrl).pipe(
@@ -36,7 +37,7 @@ export class CemeteryService {
         lng
       };
     }
-    
+
     // Altrimenti mantieni la struttura esistente
     return cemetery;
   }

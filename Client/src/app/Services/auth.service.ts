@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, switchMap } from 'rxjs/operators';
+import { environment } from '../../Environments/environments'
 
 export interface AuthUser {
   role: 'user' | 'employee';
@@ -19,7 +20,7 @@ export interface AuthUser {
 })
 export class AuthService {
   private readonly USER_KEY = 'rememberme_currentUser';
-  private readonly API_URL = 'http://localhost:3000/api';
+  private readonly API_URL = environment.apiUrl + '/api';
 
   private userSubject = new BehaviorSubject<AuthUser | null>(null);
   user$ = this.userSubject.asObservable();

@@ -106,16 +106,6 @@
       <p>Nessun defunto trovato con il nome "{{ searchTerm }}"</p>
       <small class="text-muted">Prova con un altro termine di ricerca</small>
     </div>
-
-    <div class="mt-5 p-4 border rounded bg-light">
-      <h5>🤖 Chiedi all'IA di Eterna Memoria</h5>
-      <input #aiInput placeholder="Es. Storia del cimitero o messaggio di ricordo" class="form-control mb-3">
-      <button (click)="askAI(aiInput.value); aiInput.value=''" class="btn btn-blue">Invia domanda</button>
-      <div *ngIf="aiAnswer" class="alert alert-info mt-3">
-        <strong>Risposta IA:</strong>
-        <p class="mb-0">{{ aiAnswer }}</p>
-      </div>
-    </div>
   </div>
 </div>
 
