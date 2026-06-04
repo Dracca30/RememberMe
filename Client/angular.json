@@ -40,7 +40,7 @@
           "configurations": {
             "production": {
               "fileReplacements": [{
-                "replace": "src/Environments/environment.ts",
+                "replace": "src/Environments/environments.ts",
                 "with": "src/Environments/environment.prod.ts"
               }],
               "budgets": [{
