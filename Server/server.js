@@ -16,9 +16,27 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // ✅ limit per le foto base64
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Connesso a MongoDB'))
-  .catch(err => console.error('❌ Errore MongoDB:', err));
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+  isConnected = true;
+  console.log('✅ Connesso a MongoDB');
+}
+
+// Middleware che connette prima di ogni richiesta
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('❌ Errore MongoDB:', err);
+    res.status(500).json({
+      message: 'Errore connessione database'
+    });
+  }
+});
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
