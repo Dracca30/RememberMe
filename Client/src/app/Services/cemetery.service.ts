@@ -59,6 +59,6 @@ export class CemeteryService {
   }
 
   searchDeceased(name: string): Observable<Deceased[]> {
-    return this.http.get<Deceased[]>(`${this.deceasedApiUrl}/search?name=${encodeURIComponent(name)}`);
+    return this.http.get<Deceased[]>(`http://localhost:3000/api/Deceaseds/search?name=${encodeURIComponent(name)}`);
   }
 }

@@ -1,18 +1,12 @@
 <div class="radial-menu-container" [class.expanded]="isMenuExpanded">
-  <!-- Bottone centrale -->
-  <button class="center-btn" (click)="toggleMenu()">
-    <img src="/Img/Logo.png" alt="RM" style="height: 100px;">
+  <button class="center-btn" (click)="toggleMenu()" aria-label="Apri menu">
+    <img src="/Img/Logo.png" alt="RM">
   </button>
 
-  <!-- Overlay che chiude il menu -->
-  @if (isMenuExpanded) {
-    <div class="menu-overlay" (click)="closeMenu()"></div>
-  }
+  <div class="menu-overlay" [hidden]="!isMenuExpanded" (click)="closeMenu()"></div>
 
-  <!-- Bottoni radiali -->
   <div class="radial-buttons">
-    <!-- Home - top -->
-    <button 
+    <button
       class="radial-btn radial-btn-top"
       (click)="goToHome()"
       [class.active]="activeSection === 'home'"
@@ -21,8 +15,7 @@
       <span>HOME</span>
     </button>
 
-    <!-- Map - top-right -->
-    <button 
+    <button
       class="radial-btn radial-btn-top-right"
       (click)="goToMap()"
       [class.active]="activeSection === 'map'"
@@ -31,8 +24,7 @@
       <span>MAPPA</span>
     </button>
 
-    <!-- Scan - right -->
-    <button 
+    <button
       class="radial-btn radial-btn-right"
       (click)="goToScan()"
       [class.active]="activeSection === 'scan'"
@@ -41,8 +33,7 @@
       <span>SCAN</span>
     </button>
 
-    <!-- Settings - bottom-right -->
-    <button 
+    <button
       class="radial-btn radial-btn-bottom-right"
       (click)="goToSettings()"
       [class.active]="activeSection === 'settings'"
@@ -51,34 +42,32 @@
       <span>IMPOSTAZIONI</span>
     </button>
 
-    <!-- User section (Parenti/Gestione/Registrati) - bottom -->
-    @if (userRole === 'user') {
-      <button 
-        class="radial-btn radial-btn-bottom"
-        (click)="goToParenti()"
-        [class.active]="activeSection === 'parenti'"
-        title="Parenti">
-        <i class="bi bi-people"></i>
-        <span>PARENTI</span>
-      </button>
-    } @else if (userRole === 'employee') {
-      <button 
-        class="radial-btn radial-btn-bottom"
-        (click)="goToGestione()"
-        [class.active]="activeSection === 'gestione'"
-        title="Gestione">
-        <i class="bi bi-shield-check"></i>
-        <span>GESTIONE</span>
-      </button>
-    } @else if (userRole === null) {
-      <button 
-        class="radial-btn radial-btn-bottom"
-        (click)="goToRegister()"
-        [class.active]="activeSection === 'register'"
-        title="Registrati">
-        <i class="bi bi-person-plus"></i>
-        <span>REGISTRATI</span>
-      </button>
-    }
+    <button
+      class="radial-btn radial-btn-bottom"
+      [hidden]="userRole !== 'user'"
+      (click)="goToParenti()"
+      [class.active]="activeSection === 'parenti'"
+      title="Parenti">
+      <i class="bi bi-people"></i>
+      <span>PARENTI</span>
+    </button>
+    <button
+      class="radial-btn radial-btn-bottom"
+      [hidden]="userRole !== 'employee'"
+      (click)="goToGestione()"
+      [class.active]="activeSection === 'gestione'"
+      title="Gestione">
+      <i class="bi bi-shield-check"></i>
+      <span>GESTIONE</span>
+    </button>
+    <button
+      class="radial-btn radial-btn-bottom"
+      [hidden]="userRole !== null"
+      (click)="goToRegister()"
+      [class.active]="activeSection === 'register'"
+      title="Registrati">
+      <i class="bi bi-person-plus"></i>
+      <span>REGISTRATI</span>
+    </button>
   </div>
 </div>

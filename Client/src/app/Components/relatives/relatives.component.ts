@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { FooterComponent } from "../footer/footer.component";
-import { environment } from '../../../Environments/environments';
 
 @Component({
   selector: 'app-parenti',
@@ -18,7 +17,7 @@ export class ParentiComponent implements OnInit {
   deceased: any[] = [];
   loading = true;
   error = '';
-  private API = `${environment.apiUrl}/api`;
+  private API = 'http://localhost:3000/api';
 
   constructor(
     private http: HttpClient,
