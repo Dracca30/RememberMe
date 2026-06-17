@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 const Cemetery = require('./Models/Cemetery');
 const Deceased = require('./Models/Deceased');
 const Employees = require('./Models/Employees');
-const Municipalities = require('./Models/Municipalities');
 const Tombstones = require('./Models/Tombstones');
 const Users = require('./Models/Users');
 const nodemailer = require('nodemailer');

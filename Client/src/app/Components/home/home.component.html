@@ -11,50 +11,127 @@
   </div>
 
   <div class="container">
-    <div class="search-bar glass-card mb-4" data-aos="fade-up">
-      <input
-        type="text"
-        class="form-control search-input"
-        placeholder="Cerca un cimitero, città o descrizione..."
-        [(ngModel)]="searchTerm"
-        (input)="searchCemeteries()"
-      />
-      <button class="btn btn-blue search-btn" (click)="searchCemeteries()">
-        Cerca
+    <!-- Tab di ricerca -->
+    <div class="search-tabs mb-4" data-aos="fade-up">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeSearchTab === 'cemeteries'"
+        (click)="activeSearchTab = 'cemeteries'">
+        <i class="bi bi-building"></i>
+        Cimiteri
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeSearchTab === 'deceased'"
+        (click)="activeSearchTab = 'deceased'">
+        <i class="bi bi-people"></i>
+        Ricerca Defunti
       </button>
     </div>
 
-    <div *ngIf="errorMessage" class="search-error-card mb-4" data-aos="fade-up">
-      <div class="card card-cimitero h-100">
-        <div class="card-body py-3 px-4">
-          <p class="mb-0">{{ errorMessage }}</p>
+    <!-- Search Cimiteri -->
+    <div *ngIf="activeSearchTab === 'cemeteries'">
+      <div class="search-bar glass-card mb-4" data-aos="fade-up">
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Cerca un cimitero, città o descrizione..."
+          [(ngModel)]="searchTerm"
+          (input)="searchCemeteries()"
+        />
+        <button class="btn btn-blue search-btn" (click)="searchCemeteries()">
+          Cerca
+        </button>
+      </div>
+
+      <div *ngIf="errorMessage" class="search-error-card mb-4" data-aos="fade-up">
+        <div class="card card-cimitero h-100">
+          <div class="card-body py-3 px-4">
+            <p class="mb-0">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div *ngFor="let cem of filteredCemeteries; let i = index" 
+             class="col-md-6 col-lg-4" 
+             data-aos="fade-up" 
+             [attr.data-aos-delay]="i * 100">
+          
+          <div class="card card-cimitero h-100">
+            <img [src]="cem.image" class="card-img-top" alt="{{ cem.name }}">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ cem.name }}</h5>
+              <p>
+                {{ cem.city || cem.location }}
+                <span *ngIf="cem.distance" class="distance-badge">{{ (cem.distance | number:'1.1-1') }} km</span>
+              </p>
+              <p class="card-text flex-grow-1">{{ cem.description }}</p>
+              <a [href]="getGoogleMapsLink(cem)" target="_blank" rel="noopener" class="btn btn-outline-secondary w-100 mb-2">
+                Vai su Google Maps
+              </a>
+              <button (click)="goToDetail(cem._id)" class="btn btn-blue w-100">
+                Esplora Pianta
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="row g-4">
-      <div *ngFor="let cem of filteredCemeteries; let i = index" 
-           class="col-md-6 col-lg-4" 
-           data-aos="fade-up" 
-           [attr.data-aos-delay]="i * 100">
-        
+    <!-- Search Defunti -->
+    <div *ngIf="activeSearchTab === 'deceased'">
+      <div class="search-bar glass-card mb-4" data-aos="fade-up">
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Cerca un defunto per nome..."
+          [(ngModel)]="deceasedSearchTerm"
+          (input)="searchDeceased()"
+        />
+        <button class="btn btn-blue search-btn" (click)="searchDeceased()">
+          Cerca
+        </button>
+      </div>
+
+      <div *ngIf="errorMessage && activeSearchTab === 'deceased'" class="search-error-card mb-4" data-aos="fade-up">
         <div class="card card-cimitero h-100">
-          <img [src]="cem.image" class="card-img-top" alt="{{ cem.name }}">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ cem.name }}</h5>
-            <p>
-              {{ cem.city || cem.location }}
-              <span *ngIf="cem.distance" class="distance-badge">{{ (cem.distance | number:'1.1-1') }} km</span>
-            </p>
-            <p class="card-text flex-grow-1">{{ cem.description }}</p>
-            <a [href]="getGoogleMapsLink(cem)" target="_blank" rel="noopener" class="btn btn-outline-secondary w-100 mb-2">
-              Vai su Google Maps
-            </a>
-            <button (click)="goToDetail(cem._id)" class="btn btn-blue w-100">
-              Esplora Pianta
-            </button>
+          <div class="card-body py-3 px-4">
+            <p class="mb-0">{{ errorMessage }}</p>
           </div>
         </div>
+      </div>
+
+      <div *ngIf="deceasedResults.length > 0" class="row g-4">
+        <div *ngFor="let deceased of deceasedResults; let i = index" 
+             class="col-md-6 col-lg-4" 
+             data-aos="fade-up" 
+             [attr.data-aos-delay]="i * 100">
+          
+          <div class="card card-deceased h-100 glass-card">
+            <img [src]="deceased.deceasedImage" class="card-img-top" alt="{{ deceased.fullName }}" *ngIf="deceased.deceasedImage; else defaultImage">
+            <ng-template #defaultImage>
+              <div class="card-img-placeholder">
+                <i class="bi bi-person"></i>
+              </div>
+            </ng-template>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ deceased.fullName }}</h5>
+              <p class="card-text small" *ngIf="deceased.birthDate && deceased.deathDate">
+                {{ deceased.birthDate | date: 'dd/MM/yyyy' }} - {{ deceased.deathDate | date: 'dd/MM/yyyy' }}
+              </p>
+              <p class="card-text flex-grow-1">{{ deceased.biography || 'Nessuna biografia disponibile' }}</p>
+              <button (click)="goToDeceasedProfile(deceased._id)" class="btn btn-blue w-100">
+                Visualizza Profilo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="deceasedResults.length === 0 && deceasedSearchTerm.length > 0" class="text-center py-5">
+        <i class="bi bi-search search-icon-empty"></i>
+        <p class="mt-3 opacity-60">Nessun risultato trovato</p>
       </div>
     </div>
   </div>

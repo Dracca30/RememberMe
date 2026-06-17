@@ -48,8 +48,6 @@ export class SettingsComponent implements OnInit {
   lastUpdate: string = '13 Aprile 2026';
   currentYear: number = new Date().getFullYear();
 
-  cacheSize: string = '0 MB';
-
   isLoginModalOpen: boolean = false;
 
 
@@ -63,7 +61,6 @@ export class SettingsComponent implements OnInit {
   ) {
     this.loadSettings();
     this.checkLoginStatus();
-    this.calculateCacheSize();
   }
 
   ngOnInit(): void {
@@ -193,27 +190,12 @@ export class SettingsComponent implements OnInit {
     document.documentElement.style.fontSize = `${this.fontSize}%`;
   }
 
-
-  calculateCacheSize(): void {
-    const randomSize = (Math.random() * 100 + 10).toFixed(1);
-    this.cacheSize = `${randomSize} MB`;
+  changePassword(): void {
+    this.router.navigate(['/settings/change-password']);
   }
 
-  clearCache(): void {
-    this.notification.confirm('Cancellare la cache? I dati di sistema verranno conservati.', 'Cancella cache').then(confirmed => {
-      if (confirmed) {
-        setTimeout(() => {
-          this.cacheSize = '0 MB';
-          this.notification.show('Cache cancellata con successo', 'success');
-
-          const settings = localStorage.getItem('appSettings');
-          const user = localStorage.getItem('rememberme_currentUser');
-          localStorage.clear();
-          if (settings) localStorage.setItem('appSettings', settings);
-          if (user) localStorage.setItem('rememberme_currentUser', user);
-        }, 500);
-      }
-    });
+  viewFavorites(): void {
+    this.router.navigate(['/favorites']);
   }
 
   openLogin(): void {
@@ -239,8 +221,13 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  openPrivacyPolicy(): void { window.open('https://example.com/privacy', '_blank'); }
-  openTermsOfService(): void { window.open('https://example.com/terms', '_blank'); }
+  openPrivacyPolicy(): void { 
+    this.router.navigate(['/privacy']);
+  }
+
+  openTermsOfService(): void { 
+    this.router.navigate(['/terms']);
+  }
 
   contactSupport(method: 'email' | 'whatsapp'): void {
     if (method === 'email') {
@@ -250,7 +237,9 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  openFAQ(): void { window.open('https://example.com/faq', '_blank'); }
+  openFAQ(): void { 
+    this.router.navigate(['/faq']);
+  }
 
   reportProblem(): void {
     const subject = encodeURIComponent('Segnalazione Problema');

@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 <div class="settings-div pb-32">
   <header class="settings-header">
-    <button class="back-btn mobile-only" (click)="goBack()">
+    <button class="back-btn mobile-only" (click)="goBack()" title="Indietro">
       
       <i class="bi bi-arrow-left"></i>
     </button>
@@ -123,6 +123,17 @@
     </h2>
     
     <div class="settings-card glass-card">
+      <div class="setting-item clickable" (click)="changePassword()" *ngIf="isLoggedIn">
+        <div class="setting-info">
+          <i class="bi bi-lock"></i>
+          <div>
+            <h4>Cambia Password</h4>
+            <p>Modifica la password del tuo account</p>
+          </div>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+      </div>
+
       <div class="setting-item clickable" (click)="openPrivacyPolicy()">
         <div class="setting-info">
           <i class="bi bi-shield"></i>
@@ -144,17 +155,6 @@
         </div>
         <i class="bi bi-chevron-right"></i>
       </div>
-
-      <div class="setting-item clickable" (click)="clearCache()">
-        <div class="setting-info">
-          <i class="bi bi-trash"></i>
-          <div>
-            <h4>Cancella Cache</h4>
-            <p>Libera spazio di archiviazione</p>
-          </div>
-        </div>
-        <span class="cache-size">{{ cacheSize }}</span>
-      </div>
     </div>
   </section>
 
@@ -165,6 +165,17 @@
     </h2>
     
     <div class="settings-card glass-card">
+      <div class="setting-item clickable" (click)="viewFavorites()">
+        <div class="setting-info">
+          <i class="bi bi-heart-fill"></i>
+          <div>
+            <h4>Preferiti / Scaletta</h4>
+            <p>Visualizza i tuoi preferiti e scaletta</p>
+          </div>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+      </div>
+
       <div class="setting-item clickable" (click)="contactSupport('email')">
         <div class="setting-info">
           <i class="bi bi-envelope"></i>

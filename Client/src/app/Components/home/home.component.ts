@@ -23,6 +23,9 @@ export class HomeComponent implements OnInit {
   cemeteries: (Cemetery & { distance?: number })[] = [];
   filteredCemeteries: (Cemetery & { distance?: number })[] = [];
   searchTerm = '';
+  deceasedSearchTerm = '';
+  deceasedResults: any[] = [];
+  activeSearchTab: 'cemeteries' | 'deceased' = 'cemeteries';
   userPosition: { lat: number; lng: number } | null = null;
   errorMessage = '';
   loginSuccessMessage = '';
@@ -188,6 +191,35 @@ export class HomeComponent implements OnInit {
 
     this.filteredCemeteries = filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     this.errorMessage = '';
+  }
+
+  searchDeceased(): void {
+    const term = this.deceasedSearchTerm.trim().toLowerCase();
+    if (!term) {
+      this.deceasedResults = [];
+      this.errorMessage = '';
+      return;
+    }
+
+    // Chiama l'API per cercare defunti
+    this.cemeteryService.searchDeceased(term).subscribe({
+      next: (results) => {
+        this.deceasedResults = results;
+        if (results.length === 0) {
+          this.errorMessage = `Nessun defunto trovato per "${this.deceasedSearchTerm.trim()}". Prova con un altro nome.`;
+        } else {
+          this.errorMessage = '';
+        }
+      },
+      error: (err) => {
+        console.error('Errore ricerca defunti:', err);
+        this.errorMessage = 'Errore nella ricerca. Riprova più tardi.';
+      }
+    });
+  }
+
+  goToDeceasedProfile(deceasedId: string): void {
+    this.router.navigate(['/parenti', deceasedId]);
   }
 
   private findCityLocation(cityName: string): { lat: number; lng: number } | null {

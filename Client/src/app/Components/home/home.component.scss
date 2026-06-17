@@ -26,6 +26,53 @@
   margin: 0 auto;
 }
 
+.search-tabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: var(--cyan-glow);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #00ffff, #0088ff);
+  color: #000;
+  border-color: #00ffff;
+}
+
+@media (max-width: 768px) {
+  .search-tabs {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+}
+
 .search-input {
   flex: 4;
   background: rgba(255, 255, 255, 0.08) !important;
@@ -90,6 +137,45 @@ h1.display-5 {
 
 .card-cimitero p {
   color: var(--text-secondary);
+}
+
+.card-deceased {
+  min-height: 100%;
+  transition: all 0.3s ease;
+}
+
+.card-deceased:hover {
+  transform: translateY(-5px);
+  border-color: var(--cyan-glow);
+}
+
+.card-deceased .card-body {
+  padding: 1.5rem;
+}
+
+.card-deceased h5 {
+  color: var(--cyan-glow);
+}
+
+.card-deceased p {
+  color: var(--text-secondary);
+}
+
+.card-img-placeholder {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 136, 255, 0.1));
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+.search-icon-empty {
+  font-size: 3rem;
+  opacity: 0.3;
+  display: block;
 }
 
 .btn-blue {

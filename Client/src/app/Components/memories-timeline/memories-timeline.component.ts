@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Memory } from '../../Interfaces/Memory';
 import { CemeteryService } from '../../Services/cemetery.service';
+import { NotificationService } from '../../Services/notification.service';
 
 @Component({
   selector: 'app-memories-timeline',
@@ -24,7 +25,10 @@ export class MemoriesTimelineComponent implements OnInit, OnChanges {
   errorMessage = '';
   private maxMemories = 5;
 
-  constructor(private cemeteryService: CemeteryService) {}
+  constructor(
+    private cemeteryService: CemeteryService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit() {
     this.loadMemories();
@@ -68,12 +72,18 @@ export class MemoriesTimelineComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.cemeteryService.deleteMemory(this.deceasedId, id).subscribe({
-      next: (memories) => {
-        this.memories = this.sortAndLimit(memories);
-      },
-      error: (error) => {
-        console.error('Errore eliminazione ricordo:', error);
+    this.notification.confirm('Sei sicuro di voler eliminare questo ricordo?', 'Elimina Ricordo').then(confirmed => {
+      if (confirmed) {
+        this.cemeteryService.deleteMemory(this.deceasedId, id).subscribe({
+          next: (memories) => {
+            this.memories = this.sortAndLimit(memories);
+            this.notification.show('Ricordo eliminato con successo', 'success');
+          },
+          error: (error) => {
+            console.error('Errore eliminazione ricordo:', error);
+            this.notification.show('Errore nell\'eliminazione del ricordo', 'error');
+          }
+        });
       }
     });
   }
