@@ -61,6 +61,8 @@ export class HomeComponent implements OnInit {
       next: async (data) => {
         this.cemeteries = data.map(cem => ({
           ...cem,
+          lat: cem.location?.coordinates?.lat ?? 0,
+          lng: cem.location?.coordinates?.lng ?? 0,
           distance: this.userPosition ? this.calculateDistance(this.userPosition, cem) : undefined
         }));
 
@@ -109,7 +111,8 @@ export class HomeComponent implements OnInit {
   }
 
   private calculateDistance(pos: { lat: number; lng: number }, cem: Cemetery): number {
-    const [cemLng, cemLat] = cem.location.coordinates;
+    const cemLat = cem.lat;
+    const cemLng = cem.lng;
     const R = 6371; // km
     const dLat = (cemLat - pos.lat) * Math.PI / 180;
     const dLng = (cemLng - pos.lng) * Math.PI / 180;
@@ -234,8 +237,8 @@ export class HomeComponent implements OnInit {
     
     if (matchingCemeteries.length > 0) {
       // Calcola il baricentro di tutti i cimiteri trovati nella città
-      const avgLat = matchingCemeteries.reduce((sum, cem) => sum + cem.location.coordinates[1], 0) / matchingCemeteries.length;
-      const avgLng = matchingCemeteries.reduce((sum, cem) => sum + cem.location.coordinates[0], 0) / matchingCemeteries.length;
+      const avgLat = matchingCemeteries.reduce((sum, cem) => sum + (cem.location.coordinates?.lat ?? 0), 0) / matchingCemeteries.length;
+      const avgLng = matchingCemeteries.reduce((sum, cem) => sum + (cem.location.coordinates?.lng ?? 0), 0) / matchingCemeteries.length;
       return { lat: avgLat, lng: avgLng };
     }
     

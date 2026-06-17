@@ -4,8 +4,10 @@ const Cemetery = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: String, default: 'real' },
   location: {
-    type: { type: String, enum: ['Point'], default: 'Point' },
-    coordinates: { type: [Number], required: true } // [lng, lat]
+    coordinates: {
+      lat: { type: Number, default: 0 },
+      lng: { type: Number, default: 0 }
+    }
   },
   address: String,
   city: String,

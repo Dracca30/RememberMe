@@ -115,7 +115,7 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
     if (!this.cemetery || !this.mapContainer?.nativeElement) return;
     if (this.map) return;
 
-    const [lng, lat] = this.cemetery.location.coordinates;
+    const { lng, lat } = this.cemetery.location.coordinates;
     this.map = await this.mapService.initMap(this.mapContainer.nativeElement, lat, lng, 15);
 
     const detailUrl = this.cemetery._id ? `/detail/${this.cemetery._id}` : undefined;
@@ -138,7 +138,7 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private calculateDistance(pos: { lat: number; lng: number }, cem: Cemetery): number {
-    const [cemLng, cemLat] = cem.location.coordinates;
+    const { lng: cemLng, lat: cemLat } = cem.location.coordinates;
     const R = 6371;
     const dLat = (cemLat - pos.lat) * Math.PI / 180;
     const dLng = (cemLng - pos.lng) * Math.PI / 180;
@@ -151,7 +151,7 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
 
   getGoogleMapsLink(): string {
     if (!this.cemetery) return 'https://www.google.com/maps';
-    const [lng, lat] = this.cemetery.location.coordinates;
+    const { lng, lat } = this.cemetery.location.coordinates;
     return this.mapService.getGoogleMapsDirectionLink(this.userPosition, { lat, lng }, this.cemeteryTransportMode);
   }
 

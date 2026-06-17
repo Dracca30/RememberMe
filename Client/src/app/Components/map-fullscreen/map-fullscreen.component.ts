@@ -122,7 +122,8 @@ export class MapFullscreenComponent implements OnInit, AfterViewInit {
   }
 
   private async onCemeteryMarkerClick(cemetery: Cemetery, marker: any) {
-    const [lng, lat] = cemetery.location.coordinates;
+    const lat = cemetery.location.coordinates.lat;
+    const lng = cemetery.location.coordinates.lng;
     const destination = { lat, lng };
     const origin = this.userLocation ?? null;
 

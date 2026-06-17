@@ -28,19 +28,19 @@ export class CemeteryService {
   }
 
   private processCemeteryData(cemetery: any): Cemetery {
-    // Se ha la struttura GeoJSON, estrai lat/lng
-    if (cemetery.location && typeof cemetery.location === 'object' && cemetery.location.coordinates) {
-      const [lng, lat] = cemetery.location.coordinates;
-      return {
-        ...cemetery,
-        lat,
-        lng
-      };
-    }
-
-    // Altrimenti mantieni la struttura esistente
-    return cemetery;
+  // Se ha la struttura { lat, lng }, estrai i valori
+  if (cemetery.location && typeof cemetery.location === 'object' && cemetery.location.coordinates) {
+    const { lat, lng } = cemetery.location.coordinates;
+    return {
+      ...cemetery,
+      lat,
+      lng
+    };
   }
+
+  // Altrimenti mantieni la struttura esistente
+  return cemetery;
+}
 
   getDeceasedByCemetery(cemeteryId: string): Observable<Deceased[]> {
     return this.http.get<Deceased[]>(`${this.apiUrl}/${cemeteryId}/Deceased`);

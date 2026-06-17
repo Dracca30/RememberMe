@@ -2,8 +2,10 @@ export interface Cemetery {
   _id?: string;
   name: string;
   location: {
-    type: string;
-    coordinates: [number, number]; // [lng, lat]
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
   };
   address: string;
   city: string;
