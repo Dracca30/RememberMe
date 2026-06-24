@@ -578,7 +578,28 @@ app.get('/api/Deceaseds/search', async (req, res) => {
     const deceased = await Deceased.find({
       fullName: { $regex: name, $options: 'i' }
     }).populate('assignedUsers');
-    res.json(deceased);
+
+    // Enrichisci con cemeteryId e graveDetails
+    const enriched = await Promise.all(deceased.map(async (d) => {
+      if (d.graveId) {
+        const tombstone = await Tombstones.findById(d.graveId);
+        if (tombstone) {
+          return {
+            ...d.toObject(),
+            cemeteryId: tombstone.cemeteryId,
+            graveDetails: {
+              section: tombstone.section,
+              plotNumber: tombstone.plotNumber,
+              coordinates: tombstone.coordinates,
+              status: tombstone.status
+            }
+          };
+        }
+      }
+      return d.toObject();
+    }));
+
+    res.json(enriched);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -155,10 +155,17 @@ h1.display-5 {
 
 .card-deceased h5 {
   color: var(--cyan-glow);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-deceased .card-text {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .card-deceased p {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .card-img-placeholder {

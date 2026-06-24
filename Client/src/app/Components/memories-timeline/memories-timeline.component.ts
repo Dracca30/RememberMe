@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Memory } from '../../Interfaces/Memory';
 import { CemeteryService } from '../../Services/cemetery.service';
 import { NotificationService } from '../../Services/notification.service';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-memories-timeline',
@@ -27,7 +28,8 @@ export class MemoriesTimelineComponent implements OnInit, OnChanges {
 
   constructor(
     private cemeteryService: CemeteryService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -41,6 +43,12 @@ export class MemoriesTimelineComponent implements OnInit, OnChanges {
   }
 
   addMemory() {
+    // Controlla se l'utente è loggato
+    if (!this.authService.isLoggedIn()) {
+      this.notification.show('Effettua l\'accesso per aggiungere un ricordo', 'info');
+      return;
+    }
+
     if (!this.newAuthor.trim() || !this.newMessage.trim() || !this.deceasedId) {
       return;
     }
@@ -56,6 +64,7 @@ export class MemoriesTimelineComponent implements OnInit, OnChanges {
       next: (memories) => {
         this.memories = this.sortAndLimit(memories);
         this.resetForm();
+        this.notification.show('Ricordo aggiunto con successo', 'success');
       },
       error: (error) => {
         console.error('Errore salvataggio ricordo:', error);

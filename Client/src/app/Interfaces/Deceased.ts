@@ -19,4 +19,5 @@ export interface Deceased {
     coordinates?: any;
     status?: string;
   } | null;
+  cemeteryId?: string;
 }

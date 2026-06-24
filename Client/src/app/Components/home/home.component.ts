@@ -222,7 +222,18 @@ export class HomeComponent implements OnInit {
   }
 
   goToDeceasedProfile(deceasedId: string): void {
-    this.router.navigate(['/parenti', deceasedId]);
+    // Trova il defunto nella lista dei risultati
+    const deceased = this.deceasedResults.find(d => d._id === deceasedId);
+    
+    if (deceased && deceased.cemeteryId) {
+      // Naviga al cimitero con il query param del defunto
+      this.router.navigate(['/detail', deceased.cemeteryId], {
+        queryParams: { scrollToDeceased: deceasedId }
+      });
+    } else {
+      // Fallback: mostra errore
+      this.notification.show('Impossibile trovare il cimitero del defunto', 'error');
+    }
   }
 
   private findCityLocation(cityName: string): { lat: number; lng: number } | null {

@@ -195,7 +195,11 @@ export class SettingsComponent implements OnInit {
   }
 
   viewFavorites(): void {
-    this.router.navigate(['/favorites']);
+    if (!this.isLoggedIn) {
+      this.notification.show('Per visualizzare i preferiti, effettua l\'accesso', 'info');
+    } else {
+      this.router.navigate(['/favorites']);
+    }
   }
 
   openLogin(): void {
@@ -222,11 +226,11 @@ export class SettingsComponent implements OnInit {
   }
 
   openPrivacyPolicy(): void { 
-    this.router.navigate(['/privacy']);
+    window.open('/privacy', '_blank');
   }
 
   openTermsOfService(): void { 
-    this.router.navigate(['/terms']);
+    window.open('/terms', '_blank');
   }
 
   contactSupport(method: 'email' | 'whatsapp'): void {

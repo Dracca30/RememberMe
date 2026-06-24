@@ -38,6 +38,7 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
   cemeteryTransportMode: TransportMode = 'driving';
   cemeteryDepartureAirport: any | undefined;
   cemeteryArrivalAirport: any | undefined;
+  private scrollToDeceasedId: string | null = null;
 
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   private map: any;
@@ -54,6 +55,10 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnInit() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Leggi il query param per lo scroll al defunto
+    this.scrollToDeceasedId = this.route.snapshot.queryParamMap.get('scrollToDeceased');
+    
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.router.navigate(['/']);
@@ -89,6 +94,16 @@ export class CemeteryDetailComponent implements OnInit, AfterViewInit, OnDestroy
             this.filteredDeceased = [...deceased];
             if (this.allDeceased.length === 0) {
               console.warn('Nessun defunto trovato per questo cimitero');
+            }
+
+            // Se c'è un query param per scrollare fino a un defunto, aprire il modale
+            if (this.scrollToDeceasedId) {
+              const deceasedToScroll = this.allDeceased.find(d => d._id === this.scrollToDeceasedId);
+              if (deceasedToScroll) {
+                setTimeout(() => {
+                  this.viewStory(deceasedToScroll);
+                }, 500);
+              }
             }
           },
           error: (err) => {
